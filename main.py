@@ -87,7 +87,7 @@ def translate_snbt_content(content, lang_to):
                     lambda m: f'{m.group(1)}{m.group(2)}{translate_to(m.group(3), lang_to)}{m.group(4)}',
                     content)
 
-    # 2. Переводим основной description
+    # 3. Переводим основной description
     content = re.sub(r'(^|\s)(description:\s*")([^"]+)(")',
                     lambda m: f'{m.group(1)}{m.group(2)}{translate_to(m.group(3), lang_to)}{m.group(4)}',
                     content)
@@ -98,7 +98,7 @@ def translate_snbt_content(content, lang_to):
                     lambda m: process_array(m, lang_to),
                     content)
 
-    # 3. Переводим title внутри tasks
+    # 5. Переводим title внутри tasks
     def translate_task_title(match):
         full_match = match.group(0)
         title_content = match.group(2)
@@ -114,7 +114,7 @@ def translate_snbt_content(content, lang_to):
                     translate_task_title,
                     content)
 
-    # 4. Переводим только display Name, который явно является текстом (с пробелами)
+    # 6. Переводим только display Name, который явно является текстом (с пробелами)
     def translate_display_name(match):
         name_content = match.group(2)
         # Переводим только если есть пробелы или это явно текст для игрока
@@ -126,7 +126,7 @@ def translate_snbt_content(content, lang_to):
                     translate_display_name,
                     content, flags=re.DOTALL)
 
-    # 5. Перевод Lore - только явные описательные тексты
+    # 7. Перевод Lore - только явные описательные тексты
     def translate_lore(match):
         lore_content = match.group(1)
 
@@ -156,7 +156,7 @@ def translate_snbt_content(content, lang_to):
 
     content = re.sub(r'Lore:\s*\[([^\]]+)\]', translate_lore, content)
 
-    # 6. Переводим hover текст (описания при наведении)
+    # 8. Переводим hover текст (описания при наведении)
     content = re.sub(r'(hover:\s*\[[^\]]*?")([^"]*)("[^\]]*\])',
                     lambda m: f'{m.group(1)}{translate_to(m.group(2), lang_to)}{m.group(3)}',
                     content)
