@@ -46,6 +46,33 @@ def translate_to(string, lang_to):
     except Exception as e:
         print(f"Translation error for '{string}': {e}")
         return string
+    
+def process_array(match, lang_to):
+    prefix = match.group(1)  # Отступы/пробелы
+    opening = match.group(2)  # "description: ["
+    array_content = match.group(3)  # Всё содержимое массива
+    closing = match.group(4)  # "]"
+    
+    # Разбиваем на строки, сохраняя отступы
+    lines = []
+    for line in array_content.strip().split('\n'):
+        line = line.strip()
+        if line.startswith('"') and line.endswith('"'):
+            text = line[1:-1]  # Убираем кавычки
+            if text:  # Не переводим пустые строки
+                text = translate_to(text, lang_to)
+            lines.append(f'"{text}"')
+        else:
+            lines.append(line)
+    
+    # Собираем обратно
+    indent = ' ' * 4
+    result = f'{prefix}{opening}'
+    if lines:
+        result += '\n' + '\n'.join(f'{indent}{line}' for line in lines) + '\n'
+    result += closing
+    
+    return result
 
 def translate_snbt_content(content, lang_to):
     """Безопасно переводит только текстовые поля в SNBT файле"""
@@ -54,10 +81,21 @@ def translate_snbt_content(content, lang_to):
     content = re.sub(r'(^|\s)(title:\s*")([^"]+)(")', 
                     lambda m: f'{m.group(1)}{m.group(2)}{translate_to(m.group(3), lang_to)}{m.group(4)}', 
                     content)
+
+    # 2. Переводим subtitle
+    content = re.sub(r'(^|\s)(subtitle:\s*")([^"]+)(")', 
+                    lambda m: f'{m.group(1)}{m.group(2)}{translate_to(m.group(3), lang_to)}{m.group(4)}', 
+                    content)
     
     # 2. Переводим основной description
     content = re.sub(r'(^|\s)(description:\s*")([^"]+)(")', 
                     lambda m: f'{m.group(1)}{m.group(2)}{translate_to(m.group(3), lang_to)}{m.group(4)}', 
+                    content)
+    
+    # 4. Переводим основной description, если он в массиве
+    content = re.sub(
+                    r'(^|\s)(description:\s*\[\s*)([\s\S]*?)(\s*\])',
+                    lambda m: process_array(m, lang_to),
                     content)
     
     # 3. Переводим title внутри tasks
