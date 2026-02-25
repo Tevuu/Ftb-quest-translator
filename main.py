@@ -17,7 +17,7 @@ def translate_to(string, lang_to):
 
     try:
         # Пропускаем строки, которые уже на русском
-        if any(char in string for char in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'):
+        if any(char in string for char in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'):
             return string
 
         # Пропускаем технические строки
@@ -134,7 +134,7 @@ def translate_snbt_content(content, lang_to):
             line = line.strip()
             # Пропускаем технические строки, ID, команды
             if (not line or
-                any(char in line for char in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя') or
+                any(char in line for char in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ') or
                 line.startswith('{') or
                 line.endswith('}') or
                 (':' in line and len(line) < 30 and not ' ' in line) or
@@ -197,7 +197,7 @@ def main():
     else:
         print("\nВведите путь к папке chapters:")
         target = input("Путь: ").strip()
-        lang_to = input("Язык перевода: ").strip().lower()
+        lang_to = input("Язык перевода (напр. ru): ").strip().lower()
 
     quest_path = Path(target)
 
