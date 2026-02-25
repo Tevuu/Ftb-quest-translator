@@ -33,6 +33,6 @@ A Python script to translate FTB Quests to any language 🌎
 P.S. команда для установки PIP (библиотека для переводчика):
 py -m pip install translatepy
 
-1. **Запуск скрипта:** `py ИЛИ python main.py`
+1. **Запуск скрипта:** `py ИЛИ python gui.py (для версии с интерфейсом) // python main.py (обычная версия с терминалом)`
 2. **Работа со скриптом** Необходимо указать путь до папки chapters (config\ftbquests\quests), а также желаемый язык (например ru)
 3. **Замена** Затем сгенерируется папка chapters-translate, переместите файлы из нее в оригинальную папку.
