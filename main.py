@@ -3,6 +3,7 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
 from translatepy import Translator
+from snbt import translate_lore_content
 import re
 from pathlib import Path
 from functools import lru_cache
@@ -127,34 +128,7 @@ def translate_snbt_content(content, lang_to):
                     content, flags=re.DOTALL)
 
     # 7. Перевод Lore - только явные описательные тексты
-    def translate_lore(match):
-        lore_content = match.group(1)
-
-        def translate_lore_line(line):
-            line = line.strip()
-            # Пропускаем технические строки, ID, команды
-            if (not line or
-                any(char in line for char in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ') or
-                line.startswith('{') or
-                line.endswith('}') or
-                (':' in line and len(line) < 30 and not ' ' in line) or
-                '(Part of the' in line or  # Пропускаем технические описания
-                line.startswith(' 8') or   # Пропускаем форматированные строки
-                line.startswith(' 7') or
-                line.startswith(' e(')):
-                return f'"{line}"'
-
-            # Переводим только явные описательные тексты
-            translated_line = translate_to(line, lang_to)
-            return f'"{translated_line}"'
-
-        # Разбиваем и обрабатываем каждую строку Lore
-        lines = re.findall(r'"\s*([^"]*)"', lore_content)
-        translated_lines = [translate_lore_line(line) for line in lines]
-
-        return 'Lore: [' + ', '.join(translated_lines) + ']'
-
-    content = re.sub(r'Lore:\s*\[([^\]]+)\]', translate_lore, content)
+    content = translate_lore_content(content, lang_to, translate_to)
 
     # 8. Переводим hover текст (описания при наведении)
     content = re.sub(r'(hover:\s*\[[^\]]*?")([^"]*)("[^\]]*\])',

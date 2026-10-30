@@ -12,6 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from translatepy import Translator
+from snbt import translate_lore_content
 
 # --- Logic from main.py ---
 
@@ -113,23 +114,7 @@ def translate_snbt_content(content, lang_to):
                     translate_display_name,
                     content, flags=re.DOTALL)
 
-    def translate_lore(match):
-        lore_content = match.group(1)
-        def translate_lore_line(line):
-            line = line.strip()
-            if (not line or any(char in line for char in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ') or
-                line.startswith('{') or line.endswith('}') or
-                (':' in line and len(line) < 30 and not ' ' in line) or
-                '(Part of the' in line or line.startswith(' 8') or
-                line.startswith(' 7') or line.startswith(' e(')):
-                return f'"{line}"'
-            translated_line = translate_to(line, lang_to)
-            return f'"{translated_line}"'
-        lines = re.findall(r'"\s*([^"]*)"', lore_content)
-        translated_lines = [translate_lore_line(line) for line in lines]
-        return 'Lore: [' + ', '.join(translated_lines) + ']'
-
-    content = re.sub(r'Lore:\s*\[([^\]]+)\]', translate_lore, content)
+    content = translate_lore_content(content, lang_to, translate_to)
     content = re.sub(r'(hover:\s*\[[^\]]*?")([^"]*)("[^\]]*\])',
                     lambda m: f'{m.group(1)}{translate_to(m.group(2), lang_to)}{m.group(3)}',
                     content)
